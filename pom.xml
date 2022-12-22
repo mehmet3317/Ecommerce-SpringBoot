@@ -7,6 +7,7 @@
     <groupId>org.example</groupId>
     <artifactId>Ecommerce-SpringBoot</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging> <!-- set the packaging as pom -->
 
     <modules>
         <module>Libraryy</module>
