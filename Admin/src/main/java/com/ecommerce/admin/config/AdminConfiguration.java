@@ -41,10 +41,18 @@ public class AdminConfiguration {
     }
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        String[] PUBLIC_MATCHERS = {
+                "/**",
+                "/js/**",
+                "/webjars/**",
+                "/resources/static/**",
+        };
         http.csrf().disable()
                 .authorizeHttpRequests().requestMatchers("/*").permitAll()
                 .requestMatchers("/*")
                 .permitAll()
+                .requestMatchers(PUBLIC_MATCHERS).permitAll()
                 .requestMatchers("/admin/*")
                 .hasAuthority("ADMIN")
                 .and()
