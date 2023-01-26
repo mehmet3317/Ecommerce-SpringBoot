@@ -5,6 +5,7 @@ import com.ecommerce.libraryy.model.Admin;
 import com.ecommerce.libraryy.service.impl.AdminServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,6 +20,13 @@ import javax.naming.Binding;
 public class LoginController {
     @Autowired
     private AdminServiceImpl adminService;
+
+//    public LoginController(BCryptPasswordEncoder passwordEncoder) {
+//        this.passwordEncoder = passwordEncoder;
+//    }
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @GetMapping("/login")
     public String loginForm(){
@@ -38,32 +46,42 @@ public class LoginController {
     @PostMapping("/register-new")
     public String addNewAdmin(@Valid @ModelAttribute("adminDto")AdminDto adminDto,
                               BindingResult result,
-                              Model model,
-                              RedirectAttributes redirectAttributes){
-        try{
+                              Model model){
+
+        try {
+
             if(result.hasErrors()){
-                model.addAttribute("adminDto",adminDto);
+                model.addAttribute("adminDto", adminDto);
+                result.toString();
                 return "register";
             }
             String username = adminDto.getUsername();
             Admin admin = adminService.findByUsername(username);
             if(admin != null){
-                redirectAttributes.addFlashAttribute("message","Your email has been registered");
+                model.addAttribute("adminDto", adminDto);
+                System.out.println("admin not null");
+                model.addAttribute("emailError", "Your email has been registered!");
                 return "register";
             }
             if(adminDto.getPassword().equals(adminDto.getRepeatPassword())){
+                adminDto.setPassword(passwordEncoder.encode(adminDto.getPassword()));
                 adminService.save(adminDto);
-                model.addAttribute("adminDto",adminDto);
-                redirectAttributes.addFlashAttribute("message","registered successfully");
+                System.out.println("success");
+                model.addAttribute("success", "Register successfully!");
+                model.addAttribute("adminDto", adminDto);
             }else{
-                model.addAttribute("adminDto",adminDto);
-                redirectAttributes.addFlashAttribute("message","password is not same");
+                model.addAttribute("adminDto", adminDto);
+                model.addAttribute("passwordError", "Your password maybe wrong! Check again!");
+                System.out.println("password not same");
                 return "register";
             }
         }catch (Exception e){
-            redirectAttributes.addFlashAttribute("message","Can not registered because error server");
+            e.printStackTrace();
+            model.addAttribute("errors", "The server has been wrong!");
         }
-
         return "register";
+
     }
+
+
 }
